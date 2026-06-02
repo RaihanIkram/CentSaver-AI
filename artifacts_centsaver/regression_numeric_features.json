@@ -1,0 +1,19 @@
+[
+  "target_month",
+  "target_year",
+  "target_month_sin",
+  "target_month_cos",
+  "last_month_total",
+  "last_month_total_log",
+  "rolling3_total",
+  "rolling6_total",
+  "same_month_avg",
+  "last_month_txn_count",
+  "rolling3_txn_count",
+  "rolling6_txn_count",
+  "last_month_avg_amount",
+  "last_month_risk_rate",
+  "rolling3_risk_rate",
+  "last_month_micro_rate",
+  "rolling3_micro_rate"
+]

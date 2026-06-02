@@ -1,0 +1,44 @@
+{
+  "numeric_features": [
+    "amount",
+    "amount_log",
+    "day_of_week",
+    "is_weekend",
+    "month",
+    "year",
+    "cat_day_q25",
+    "cat_day_median",
+    "cat_day_count",
+    "monthly_category_txn_count_avg",
+    "monthly_category_txn_count_median",
+    "small_amount_flag",
+    "repetitive_category_flag"
+  ],
+  "best_threshold": 0.5225743651390076,
+  "best_micro_threshold": 0.016101710498332977,
+  "threshold_strategy": "final_threshold_guard_accuracy_85_95_target_94",
+  "classification_checkpoint_path": "best_centsaver_category_aware_model.keras",
+  "loss_weights": {
+    "risk_output": 1.5,
+    "micro_output": 0.8
+  },
+  "category_to_index_path": "category_to_index.json",
+  "scaler_path": "centsaver_scaler.joblib",
+  "baseline_path": "category_day_baseline.csv",
+  "frequency_baseline_path": "category_frequency_baseline.csv",
+  "classification_model_path": "centsaver_category_aware_model.keras",
+  "model_path": "centsaver_category_aware_model.keras",
+  "regression_model_path": "centsaver_monthly_spending_regression_model.keras",
+  "regression_scaler_path": "centsaver_regression_scaler.joblib",
+  "regression_numeric_features_path": "regression_numeric_features.json",
+  "monthly_regression_history_path": "monthly_regression_history.csv",
+  "created_at": "2026-05-31T04:27:21.848418",
+  "ml_tasks": {
+    "classification": [
+      "risk_output",
+      "micro_output"
+    ],
+    "regression": "monthly_category_spending_forecast"
+  },
+  "business_rule": "Category-aware baseline; classification uses controlled numeric features and threshold guard; regression forecast uses only historical features before target period."
+}
