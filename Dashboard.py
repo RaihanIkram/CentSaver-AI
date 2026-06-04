@@ -1,7 +1,8 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-
+import shutil
+from pathlib import Path
 from utils.data_loader import load_transactions
 from utils.formatter import (
     rupiah,
@@ -20,18 +21,53 @@ from main import (
 # ==================================================
 
 st.set_page_config(
-    page_title="CentSaver AI - Dashboard",
+    page_title="CentSaver - Dashboard",
     page_icon="💸",
     layout="wide"
 )
 
+# ==================================================
+# MUAT DATA DEMO
+# ==================================================
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    if st.button(
+        "📂 Muat Data Demo",
+        use_container_width=True
+    ):
+
+        shutil.copy(
+            "data/dummy_transactions.csv",
+            "data/transactions.csv"
+        )
+
+        st.success("Data demo berhasil dimuat")
+        st.rerun()
+
+with col2:
+
+    if st.button(
+        "🗑️ Reset Data",
+        use_container_width=True
+    ):
+
+        shutil.copy(
+            "data/empty_transactions.csv",
+            "data/transactions.csv"
+        )
+
+        st.success("Data berhasil direset")
+        st.rerun()
 # ==================================================
 # LOAD DATA
 # ==================================================
 
 df = load_transactions()
 
-st.title("💰 CentSaver AI")
+st.title("CentSaver - Smart Expense Awareness System")
 st.caption(
     "Monitoring Keuangan Personal Berbasis AI"
 )
@@ -41,6 +77,8 @@ if df.empty:
         "Belum terdapat data transaksi."
     )
     st.stop()
+
+
 
 # ==================================================
 # FILTER PERIODE

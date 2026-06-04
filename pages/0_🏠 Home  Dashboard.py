@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="CentSaver AI | Kelola Keuangan Mikromu",
+    page_title="CentSaver -- Smart Expense Awareness System",
     page_icon="💰",
     layout="wide",
 )
@@ -111,6 +111,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 # ============================================================
 # HERO
 # ============================================================
+
 st.markdown("""
 <div class="hero">
     <h1>💰 CentSaver AI</h1>
@@ -131,6 +132,7 @@ st.markdown("""
 # ============================================================
 # AJAKAN
 # ============================================================
+
 st.markdown("""
 <div class="quote">
     "Orang Indonesia cenderung <b>tidak menyadari</b> bahwa pengeluaran Rp 15.000–Rp 50.000 per hari untuk kopi, 

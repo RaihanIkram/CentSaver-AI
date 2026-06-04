@@ -8,7 +8,7 @@ CSV_PATH = Path("data/transactions.csv")
 # PAGE CONFIG
 # ==================================================
 st.set_page_config(
-    page_title="CentSaver AI - Riwayat Transaksi",
+    page_title="CentSaver - Riwayat Transaksi",
     page_icon="💸",
     layout="wide"
 )

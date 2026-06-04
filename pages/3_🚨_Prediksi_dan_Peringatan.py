@@ -10,7 +10,7 @@ from main import MonthlyAlertRequest, monthly_alert
 # ==================================================
 
 st.set_page_config(
-    page_title="CentSaver AI - Prediksi & Peringatan",
+    page_title="CentSaver - Prediksi & Peringatan",
     page_icon="💸",
     layout="wide"
 )
