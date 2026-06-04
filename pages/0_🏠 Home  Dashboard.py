@@ -114,7 +114,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
 st.markdown("""
 <div class="hero">
-    <h1>💰 CentSaver - Smart Expense Awareness System</h1>
+    <h1> CentSaver - Smart Expense Awareness System</h1>
     <p>Sadar. Catat. Hemat.<br>Mulai perjalanan keuangan sehatmu dari pengeluaran mikro yang sering luput dari pantauan.</p>
     <div style="margin-top: 1.5rem;">
         <a href="Tambah_Transaksi" target="_self">
@@ -124,7 +124,7 @@ st.markdown("""
         </a>
     </div>
     <p style="font-size: 0.85rem; margin-top: 1rem; opacity: 0.6;">
-        Dibuat dengan ❤️ oleh tim Capstone DBS Foundation Coding Camp 2026
+        Dibuat oleh tim Capstone CC26-PRU458 DBS Foundation Coding Camp 2026
     </p>
 </div>
 """, unsafe_allow_html=True)
