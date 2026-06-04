@@ -359,7 +359,7 @@ with tab_bq:
         Apa karakteristik yang membedakan transaksi micro-spending dengan normal?</div>
         <div class="bq-answer">
             Terdapat perbedaan signifikan antara kedua kelas. Nominal micro-spending jauh lebih rendah 
-            (rata-rata <b>Rp79.900</b> vs <b>Rp288.800</b>, median <b>Rp28.100</b> vs <b>Rp128.100</b>). 
+            (rata-rata <b>Rp38.799</b> vs <b>Rp288.800</b>, median <b>Rp28.100</b> vs <b>Rp128.100</b>). 
             Perbedaan ini signifikan secara statistik dengan effect size besar.<br><br>
             Selain nominal, pola waktu juga berbeda: micro-spending lebih sering terjadi di <b>akhir pekan</b>. 
             Kategori <b>Transportasi</b>, <b>Kopi & Minuman</b>, dan <b>Langganan Digital</b> 
