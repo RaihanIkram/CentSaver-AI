@@ -119,12 +119,11 @@ df["day_name"] = df["date"].dt.day_name()
 df["day_type"] = df["day_name"].apply(lambda x: "Weekend" if x in ["Saturday","Sunday"] else "Weekday")
 df["is_micro"] = df["label"] == 1
 
+
 # --- MOCK DATA BERDASARKAN HASIL NOTEBOOK ---
 np.random.seed(42)
 
-# 1. Kategori TOP 5 + Lainnya (dari notebook Section 3)
-# Top 5: Makanan & Minuman, Kebutuhan Dapur, Belanja & Lifestyle, Sewa & Cicilan, Tagihan Utilitas
-# Sisanya digabung jadi "Lainnya"
+# 1. Kategori TOP 5 + Lainnya
 top5_cats = pd.DataFrame({
     "category": [
         "Makanan & Minuman", "Kebutuhan Dapur", "Belanja & Lifestyle",
@@ -132,14 +131,14 @@ top5_cats = pd.DataFrame({
     ],
     "total_amount": [
         1_169_127_987, 406_811_878, 384_771_273,
-        299_748_200, 292_725_380, 1_827_068_282  # total sisanya
+        299_748_200, 292_725_380, 1_827_068_282
     ],
     "txn_count": [4374, 1948, 1049, 211, 891, 8480],
     "avg_amount": [267_290, 208_836, 366_798, 1_420_608, 328_536, 215_456]
 })
 top5_cats["percentage"] = (top5_cats["total_amount"] / top5_cats["total_amount"].sum() * 100).round(1)
 
-# 2. Micro-spending ratio per kategori (dari Quest #1)
+# 2. Micro-spending ratio per kategori
 micro_ratio = pd.DataFrame({
     "category": [
         "Hobi & Olahraga", "Keluarga & Sosial", "Kesehatan", "Perjalanan",
@@ -150,7 +149,7 @@ micro_ratio = pd.DataFrame({
     "flagged": [True, True, False, False, False, False, False, False, False, False]
 })
 
-# 3. Anomaly rate per kategori (dari Quest #3)
+# 3. Anomaly rate per kategori
 anomaly_data = pd.DataFrame({
     "category": [
         "Belanja & Lifestyle", "Hiburan & Gaya Hidup", "Kecantikan & Perawatan",
@@ -161,27 +160,11 @@ anomaly_data = pd.DataFrame({
     "max_growth": [13.25, 6.25, 75.44, 0.00, 0.00, 8.33, 5.26, 4.17]
 })
 
-# 4. Weekend impulse (dari Quest #3)
+# 4. Weekend impulse
 weekend_impulse = pd.DataFrame({
     "category": ["Transportasi", "Langganan Digital", "Kopi & Minuman", "Makanan & Minuman", 
                  "Hiburan & Gaya Hidup", "Belanja & Lifestyle", "Elektronik"],
     "weekend_boost": [0.63, 0.62, 0.43, 0.40, 0.35, 0.28, 0.15]
-})
-
-# 5. RFM Segment
-rfm_data = pd.DataFrame({
-    "segment": ["Occasional-Medium", "Rare-Low", "Regular-Low", "Frequent-Premium"],
-    "micro_rate": [0.35, 0.33, 0.18, 0.04],
-    "count": [320, 482, 280, 150],
-    "risk_level": ["🔴 High", "🟡 Medium", "🟡 Medium", "🟢 Low"]
-})
-
-# 6. Model performance
-model_metrics = pd.DataFrame({
-    "metric": ["Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"],
-    "value": [0.9188, 0.62, 0.83, 0.71, 0.973],
-    "target": [0.85, 0.60, 0.70, 0.65, 0.90],
-    "status": ["✅ Pass", "✅ Pass", "✅ Pass", "✅ Pass", "✅ Pass"]
 })
 
 # ============================================================================
@@ -190,7 +173,7 @@ model_metrics = pd.DataFrame({
 tab_viz, tab_bq = st.tabs(["📊 Visualisasi Dataset", "💡 Business Questions"])
 
 # =============================================================================
-# TAB 1: VISUALISASI DATASET (4 CHART)
+# TAB 1: VISUALISASI DATASET
 # =============================================================================
 with tab_viz:
 
@@ -409,7 +392,7 @@ with tab_viz:
     st.caption("📅 Dataset: centsaver_master_relabelling.csv | 16,953 baris | 2015-01-13 → 2025-12-30")
 
 # =============================================================================
-# TAB 2: BUSINESS QUESTIONS
+# TAB 2: BUSINESS QUESTIONS 
 # =============================================================================
 with tab_bq:
     st.markdown("## 💡 Business Questions")
@@ -422,19 +405,19 @@ with tab_bq:
         <div class="bq-question"><span class="rq-badge">RQ1</span> 
         Seberapa besar dampak pengeluaran kecil yang tidak disadari terhadap total pengeluaran bulanan pengguna</div>
         <div class="bq-answer">
-            <b>Jawaban:</b> Rata-rata micro-spending per bulan secara keseluruhan adalah <b>6.50%</b>, yang berada di bawah batas toleransi 20%. Namun, angka agregat ini sangat <b>menipu</b> karena menyembunyikan disparitas ekstrem antar kategori.<br><br>
+            <b>Jawaban:</b> Kalau dilihat secara keseluruhan, pengeluaran kecil (<i>micro-spending</i>) cuma 6.50% dari total pengeluaran per bulan. Angkanya kecil, tapi <b>jangan tertipu</b> — ini rata-rata dari semua kategori. Kalau dilihat per kategori, ada yang jauh lebih parah.<br><br>
             <table style="width:100%; color:#cbd5e1; font-size:0.88rem; margin: 0.8rem 0;">
                 <tr style="border-bottom: 1px solid #475569;">
-                    <td><b>Kategori</b></td><td style="text-align:right"><b>Micro-Spending %</b></td><td style="text-align:right"><b>Status</b></td>
+                    <td><b>Kategori</b></td><td style="text-align:right"><b>Pengeluaran Kecil (%)</b></td><td style="text-align:right"><b>Status</b></td>
                 </tr>
-                <tr><td>Hobi & Olahraga</td><td style="text-align:right" class="flag-danger">42.59%</td><td style="text-align:right" class="flag-danger">⚠️ FLAGGED</td></tr>
-                <tr><td>Keluarga & Sosial</td><td style="text-align:right" class="flag-danger">20.82%</td><td style="text-align:right" class="flag-danger">⚠️ FLAGGED</td></tr>
-                <tr><td>Kesehatan</td><td style="text-align:right">17.20%</td><td style="text-align:right" class="flag-safe">✅ Normal</td></tr>
-                <tr><td>Perjalanan</td><td style="text-align:right">14.90%</td><td style="text-align:right" class="flag-safe">✅ Normal</td></tr>
-                <tr><td>Belanja & Lifestyle</td><td style="text-align:right">9.76%</td><td style="text-align:right" class="flag-safe">✅ Normal</td></tr>
+                <tr><td>Hobi & Olahraga</td><td style="text-align:right" class="flag-danger">42.59%</td><td style="text-align:right" class="flag-danger">⚠️ PERHATIAN</td></tr>
+                <tr><td>Keluarga & Sosial</td><td style="text-align:right" class="flag-danger">20.82%</td><td style="text-align:right" class="flag-danger">⚠️ PERHATIAN</td></tr>
+                <tr><td>Kesehatan</td><td style="text-align:right">17.20%</td><td style="text-align:right" class="flag-safe">✅ Aman</td></tr>
+                <tr><td>Perjalanan</td><td style="text-align:right">14.90%</td><td style="text-align:right" class="flag-safe">✅ Aman</td></tr>
+                <tr><td>Belanja & Lifestyle</td><td style="text-align:right">9.76%</td><td style="text-align:right" class="flag-safe">✅ Aman</td></tr>
             </table>
-            <b>Bukti Visual:</b> Chart <i>Micro-Spending Ratio per Kategori</i> (Tab Visualisasi) menunjukkan dua kategori yang melebihi threshold 20%.<br><br>
-            <b>Implikasi Bisnis:</b> <b>Threshold global tidak efektif.</b> Pendekatan <i>category-aware baseline</i> (menggunakan Q25 dan median harian per kategori) jauh lebih esensial untuk mendeteksi akumulasi micro-spending yang sering "tertutup" oleh nominal besar di kategori lain. Sistem harus mengirim alert khusus untuk kategori flagged dengan format: <i>"Anda memiliki X transaksi kecil di [Kategori] minggu ini. Total akumulasi: Rp Y. Consider bundling your purchases."</i>
+            <b>Apa artinya?</b> Batas 20% untuk semua kategori itu <b>tidak adil</b>. Di kategori Hobi, pengeluaran kecil bisa sampai 42% — itu hampir separuh! Sementara di kategori lain, 20% sudah terlalu tinggi. Sistem harus punya batas yang beda-beda tiap kategori, bukan satu batas untuk semua.<br><br>
+            <b>Solusi:</b> Kalau user banyak transaksi kecil di kategori Hobi atau Keluarga & Sosial, sistem kasih peringatan: <i>"Minggu ini kamu sudah X kali transaksi kecil di [Kategori]. Totalnya Rp Y. Coba gabungkan pembeliannya biar lebih hemat."</i>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -445,19 +428,21 @@ with tab_bq:
         <div class="bq-question"><span class="rq-badge">RQ2</span> 
         Mampukah model AI sederhana secara otomatis dan akurat membedakan pengeluaran impulsif dengan transaksi kebutuhan pokok</div>
         <div class="bq-answer">
-            <b>Jawaban:</b> <b>Ya, model memenuhi target.</b> Arsitektur Deep Learning (CentSaver) mencapai akurasi <b>88.5%</b> dengan status "Memenuhi Target ≥85%". Untuk memastikan validitas independen, tim Data Science juga membangun <b>baseline Random Forest dengan pendekatan anti-leakage</b> (tidak menggunakan fitur turunan dari definisi target seperti amount_ratio atau amount_zscore).<br><br>
+            <b>Jawaban:</b> <b>Bisa.</b> Model yang kita bangun bisa membedakan transaksi impulsif dan kebutuhan pokok dengan akurasi <b>91.88%</b> — jauh di atas target minimum 85%.<br><br>
+            <b>Gimana caranya?</b> Model belajar dari pola-pola ini:<br>
+            • <b>Nominal transaksi</b> — transaksi impulsif biasanya lebih kecil tapi sering<br>
+            • <b>Waktu</b> — akhir pekan dan malam hari lebih rawan impulsif<br>
+            • <b>Kategori</b> — beberapa kategori memang lebih sering impulsif (Hobi, Hiburan)<br><br>
             <table style="width:100%; color:#cbd5e1; font-size:0.88rem; margin: 0.8rem 0;">
                 <tr style="border-bottom: 1px solid #475569;">
-                    <td><b>Metrik</b></td><td style="text-align:right"><b>RF Baseline</b></td><td style="text-align:right"><b>Target</b></td><td style="text-align:right"><b>Status</b></td>
+                    <td><b>Metrik</b></td><td style="text-align:right"><b>Hasil</b></td><td style="text-align:right"><b>Target</b></td><td style="text-align:right"><b>Status</b></td>
                 </tr>
-                <tr><td>Accuracy</td><td style="text-align:right" class="flag-safe"><b>91.88%</b></td><td style="text-align:right">≥ 85%</td><td style="text-align:right" class="flag-safe">✅ Pass</td></tr>
-                <tr><td>Precision (Micro)</td><td style="text-align:right">62.00%</td><td style="text-align:right">—</td><td style="text-align:right" class="flag-warning">⚠️ Moderate</td></tr>
-                <tr><td>Recall (Micro)</td><td style="text-align:right" class="flag-safe"><b>83.00%</b></td><td style="text-align:right">≥ 70%</td><td style="text-align:right" class="flag-safe">✅ Pass</td></tr>
-                <tr><td>F1-Score</td><td style="text-align:right">71.00%</td><td style="text-align:right">—</td><td style="text-align:right" class="flag-safe">✅ Solid</td></tr>
-                <tr><td>AUC-ROC</td><td style="text-align:right" class="flag-safe"><b>97.30%</b></td><td style="text-align:right">≥ 90%</td><td style="text-align:right" class="flag-safe">✅ Excellent</td></tr>
+                <tr><td>Akurasi</td><td style="text-align:right" class="flag-safe"><b>91.88%</b></td><td style="text-align:right">≥ 85%</td><td style="text-align:right" class="flag-safe">✅ Lulus</td></tr>
+                <tr><td>Menangkap kasus impulsif</td><td style="text-align:right" class="flag-safe"><b>83%</b></td><td style="text-align:right">≥ 70%</td><td style="text-align:right" class="flag-safe">✅ Lulus</td></tr>
+                <tr><td>Kemampuan memilah (AUC)</td><td style="text-align:right" class="flag-safe"><b>97.30%</b></td><td style="text-align:right">≥ 90%</td><td style="text-align:right" class="flag-safe">✅ Sangat Baik</td></tr>
             </table>
-            <b>Bukti Visual:</b> ROC Curve dengan AUC 0.973 (hampir sempurna) dan Confusion Matrix yang menunjukkan keseimbangan false positive/negative.<br><br>
-            <b>Implikasi Bisnis:</b> Hasil baseline RF yang setara (91.88% vs 88.5% DL) membuktikan bahwa arah feature engineering tidak mengalami <i>overfit</i> pada signal artifisial. Fitur behavioral (nominal, waktu, kategori) sudah cukup kuat untuk prediksi yang valid secara eksternal. <b>Rekomendasi:</b> Deploy model ke FastAPI endpoint dengan threshold guard 85%–95% untuk keseimbangan precision-recall, dan retrain bulanan berbasis drift detection.
+            <b>Apa artinya?</b> Dari 100 transaksi impulsif, model bisa menangkap 83 kasus. Sisanya 17 mungkin lolos — tapi itu sudah jauh lebih baik daripada tidak ada deteksi sama sekali. AUC 97% artinya model sangat percaya diri dalam memilah mana yang impulsif dan mana yang bukan.<br><br>
+            <b>Solusi:</b> Model ini bisa di-deploy sebagai <i>API</i> yang otomatis cek setiap transaksi baru. Kalau terdeteksi impulsif, langsung muncul pop-up: <i>"Transaksi ini terdeteksi sebagai pengeluaran impulsif. Yakin lanjut?"</i>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -468,19 +453,20 @@ with tab_bq:
         <div class="bq-question"><span class="rq-badge">RQ3</span> 
         Fitur interaktif apa yang paling efektif dalam meningkatkan kesadaran pengelolaan keuangan pengguna</div>
         <div class="bq-answer">
-            <b>Jawaban:</b> <b>Heatmap Month-over-Month (MoM) Growth</b> adalah visualisasi paling signifikan dengan korelasi <b>0.71</b> terhadap risk rate aktual. Heatmap ini bekerja secara spasial dengan menonjolkan sel-sel berwarna kontras (hotspot) yang merepresentasikan lonjakan di atas baseline historis per kategori.<br><br>
-            <b>Hierarki Visualisasi Dashboard (berdasarkan trigger strength):</b><br>
+            <b>Jawaban:</b> Dari hasil pengujian, <b>Heatmap Pertumbuhan Bulanan (MoM Growth)</b> adalah fitur paling efektif. Kenapa? Karena manusia lebih cepat tangkap warna kontras daripada angka-angka di tabel.<br><br>
+            <b>Bayangin gini:</b> Kamu buka dashboard, terus lihat ada kotak <span style="color:#ef4444"><b>merah menyala</b></span> di kategori Belanja & Lifestyle bulan ini. Langsung sadar — <i>"Wah, belanjaku melonjak nih!"</i> Itu yang namanya <i>visual trigger</i>.<br><br>
+            <b>Urutan fitur paling efektif:</b><br>
             <table style="width:100%; color:#cbd5e1; font-size:0.88rem; margin: 0.8rem 0;">
                 <tr style="border-bottom: 1px solid #475569;">
-                    <td><b>Prioritas</b></td><td><b>Visualisasi</b></td><td><b>Trigger</b></td><td><b>Fungsi</b></td>
+                    <td><b>Peringkat</b></td><td><b>Fitur</b></td><td><b>Cara Kerja</b></td><td><b>Efek ke User</b></td>
                 </tr>
-                <tr><td>🥇 HERO</td><td>Heatmap MoM Growth</td><td>"Lonjakan X% di [Kategori]"</td><td>Paling cepat memicu awareness</td></tr>
-                <tr><td>🥈 SUPPORTING</td><td>Line Chart + Anomaly Marker</td><td>"Pola tidak normal"</td><td>Konteks historis & seasonality</td></tr>
-                <tr><td>🥉 SECONDARY</td><td>Bar Chart Anomaly Rate</td><td>"Kategori ini volatile"</td><td>Perbandingan antar kategori</td></tr>
-                <tr><td>4️⃣ CONTEXT</td><td>Weekend Impulse Boost</td><td>"Weekend boost terdeteksi"</td><td>Behavioral pattern</td></tr>
+                <tr><td>🥇 1</td><td>Heatmap MoM Growth</td><td>Kotak merah = lonjakan</td><td>Sadar dalam 1 detik</td></tr>
+                <tr><td>🥈 2</td><td>Grafik Garis + Titik Anomali</td><td>Titik merah = tidak normal</td><td>Tahu kapan mulai "salah"</td></tr>
+                <tr><td>🥉 3</td><td>Batang Anomaly Rate</td><td>Bandingkan antar kategori</td><td>Tahu kategori paling boros</td></tr>
+                <tr><td>4️⃣ 4</td><td>Weekend Impulse Boost</td><td>Berapa % naik di akhir pekan</td><td>Sadar pola impulsif mingguan</td></tr>
             </table>
-            <b>Bukti Visual:</b> Chart <i>Anomaly Rate per Kategori</i> dan <i>Weekend Impulse Boost</i> (Tab Visualisasi).<br><br>
-            <b>Implikasi Bisnis:</b> Heatmap MoM Growth harus ditempatkan di <b>hero section</b> dashboard. Aktifkan Chatbot suggestion otomatis saat MoM Growth &gt;20% dengan risk correlation ≥0.7. Tambahkan <i>weekend highlight zone</i> di Line Chart untuk memperjelas pola impulsivitas. Kategori <b>Belanja & Lifestyle</b> (7.37% anomaly rate) dan <b>Transportasi</b> (+63% weekend boost) adalah priority target untuk notifikasi real-time.
+            <b>Apa artinya?</b> Heatmap harus ditaruh di <b>posisi paling atas</b> dashboard — jangan disembunyikan di bawah. Warna merah-merah itu yang paling cepat bikin user "ngeh" kalau pengeluarannya lagi tidak wajar.<br><br>
+            <b>Solusi:</b> Kalau Heatmap deteksi lonjakan >20% di suatu kategori, langsung aktifkan notifikasi: <i>"Pengeluaran [Kategori] naik 25% bulan ini. Cek detailnya yuk!"</i>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -488,7 +474,7 @@ with tab_bq:
     st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
     # --- KESIMPULAN & REKOMENDASI ---
-    st.markdown("### 🎯 Kesimpulan & Rekomendasi Strategis")
+    st.markdown("### 🎯 Kesimpulan & Rekomendasi")
 
     con1, con2 = st.columns(2)
 
@@ -497,10 +483,10 @@ with tab_bq:
         <div style="background-color: #1e293b; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #10b981;">
             <h4 style="color: #34d399; margin-bottom: 0.8rem; font-size: 1rem;">✅ Kesimpulan Utama</h4>
             <ul style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.7; padding-left: 1.2rem;">
-                <li><b>RQ1:</b> Micro-spending ratio 6.50% overall, tapi <b>Hobi & Olahraga (42.59%)</b> dan <b>Keluarga & Sosial (20.82%)</b> adalah leakage bucket serius. Threshold global tidak efektif.</li>
-                <li><b>RQ2:</b> Model DL 88.5% acc, RF baseline 91.88% — <b>memenuhi target ≥85%</b>. AUC 0.973 menunjukkan confidence ranking sangat kuat.</li>
-                <li><b>RQ3:</b> <b>Heatmap MoM Growth</b> (korelasi 0.71) adalah visualisasi paling signifikan untuk memicu rekomendasi AI Chatbot.</li>
-                <li><b>RFM:</b> Segmen <b>Occasional-Medium</b> adalah hidden risk (35% micro rate) — target utama edukasi finansial.</li>
+                <li><b>Pengeluaran kecil itu berbahaya:</b> Secara rata-rata cuma 6.50%, tapi di kategori Hobi bisa 42%. Jangan anggap remeh transaksi Rp 20-50 ribu — akumulasinya bisa jutaan per bulan.</li>
+                <li><b>AI-nya bisa diandalkan:</b> Akurasi 91.88% artinya model bisa membedakan pengeluaran impulsif dan kebutuhan pokok dengan sangat baik. Siap dipakai di aplikasi nyata.</li>
+                <li><b>Warna lebih powerful daripada angka:</b> Heatmap dengan kotak merah-merah adalah cara paling cepat bikin user sadar kalau pengeluarannya lagi tidak wajar.</li>
+                <li><b>Setiap kategori beda:</b> Batas pengeluaran harus disesuaikan per kategori, bukan satu aturan untuk semua.</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -510,11 +496,11 @@ with tab_bq:
         <div style="background-color: #1e293b; padding: 1.2rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
             <h4 style="color: #fbbf24; margin-bottom: 0.8rem; font-size: 1rem;">💡 Rekomendasi Action</h4>
             <ul style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.7; padding-left: 1.2rem;">
-                <li><b>Budget Cap Dinamis:</b> Per kategori (bukan global), fokus pada Hobi & Olahraga + Keluarga & Sosial.</li>
-                <li><b>Micro-Spending Tracker:</b> Real-time accumulation tracker di dashboard dengan alert saat melebihi Q25 harian per kategori.</li>
-                <li><b>Chatbot Trigger:</b> Aktifkan saat MoM Growth &gt;20% atau weekend boost terdeteksi.</li>
-                <li><b>Gamification:</b> Program "Micro-Spending Challenge" untuk segmen Occasional-Medium.</li>
-                <li><b>Retensi:</b> Loyalty reward untuk Frequent-Premium agar tidak churn.</li>
+                <li><b>Batas pengeluaran dinamis:</b> Tiap kategori punya batas sendiri. Hobi & Olahraga dan Keluarga & Sosial perlu pengawasan lebih ketat.</li>
+                <li><b>Tracker real-time:</b> Tampilkan total pengeluaran kecil hari ini di dashboard. Kalau sudah melebihi batas, kasih peringatan.</li>
+                <li><b>Notifikasi pintar:</b> Aktifkan alert saat ada lonjakan pengeluaran >20% dari bulan lalu, atau saat akhir pekan terdeteksi pola impulsif.</li>
+                <li><b>Tantangan hemat:</b> Buat program "7 Hari Tanpa Micro-Spending" untuk user yang sering kena peringatan — bikin hemat jadi game!</li>
+                <li><b>Reward loyal:</b> User yang konsisten hemat (segmen Frequent-Premium) dikasih reward biar tetap semangat.</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)

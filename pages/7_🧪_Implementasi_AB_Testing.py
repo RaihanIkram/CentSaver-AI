@@ -17,7 +17,7 @@ from ab_testing_module import (
 
 st.set_page_config(page_title="Product Analytics", page_icon="🧪")
 
-st.title("🧪 Product Analytics Console")
+st.title("🧪 Implementasi A/B Testing")
 st.caption("Halaman ini untuk tim internal: Data Scientist & Product Manager")
 st.info("Menguji signifikansi statistik antar kategori transaksi mikro.")
 

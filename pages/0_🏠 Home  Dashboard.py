@@ -114,7 +114,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
 st.markdown("""
 <div class="hero">
-    <h1>💰 CentSaver AI</h1>
+    <h1>💰 CentSaver - Smart Expense Awareness System</h1>
     <p>Sadar. Catat. Hemat.<br>Mulai perjalanan keuangan sehatmu dari pengeluaran mikro yang sering luput dari pantauan.</p>
     <div style="margin-top: 1.5rem;">
         <a href="Tambah_Transaksi" target="_self">
@@ -152,7 +152,7 @@ features = [
     ("📋", "Lihat Riwayat", "Seluruh transaksi tersimpan rapi. Filter per kategori, tanggal, atau nominal."),
     ("🚨", "Prediksi & Peringatan", "AI mendeteksi pola micro-spending dan memberi peringatan sebelum boncos."),
     ("📊", "Visualisasi Data", "Pahami kebiasaan belanjamu lewat grafik dan chart interaktif yang menarik."),
-    ("🧪", "Analytics Console", "Tim produk bisa melakukan A/B Testing untuk strategi penghematan berbasis data."),
+    ("🧪", " Implementasi A/B Testing", "Tim produk bisa melakukan A/B Testing untuk strategi penghematan berbasis data."),
     ("📰", "Literasi Keuangan", "Baca berita ekonomi, tips saham, dan edukasi finansial terkini di Indonesia."),
 ]
 
@@ -191,54 +191,21 @@ st.markdown("""
 st.divider()
 
 # ============================================================
-# NAVIGASI
-# ============================================================
-st.markdown('<div class="section-title">🧭 Jelajahi Dashboard</div>', unsafe_allow_html=True)
-st.markdown("Pilih halaman di sidebar kiri, atau klik di bawah ini:")
-
-pages = [
-    ("pages/1_➕_Tambah_Transaksi.py", "➕ Tambah Transaksi"),
-    ("pages/2_📋_Riwayat_Transaksi.py", "📋 Riwayat Transaksi"),
-    ("pages/3_🚨_Prediksi_dan_Peringatan.py", "🚨 Prediksi & Peringatan"),
-    ("pages/4_📊_Visualisasi_Dataset.py", "📊 Visualisasi Dataset"),
-    ("pages/7_🧪_Product_Analytics.py", "🧪 Product Analytics"),
-    ("pages/6_📰_Literasi_Keuangan.py", "📰 Literasi Keuangan"),
-]
-
-for i in range(0, len(pages), 3):
-    cols = st.columns(3)
-    for col, (page, label) in zip(cols, pages[i:i+3]):
-        with col:
-            st.page_link(page, label=label)
-
-st.divider()
-
-# ============================================================
 # TENTANG
 # ============================================================
-c1, c2 = st.columns(2)
-with c1:
-    st.markdown('<div class="section-title">📖 Tentang Proyek</div>', unsafe_allow_html=True)
-    st.markdown("""
-    **CentSaver AI** adalah capstone project dari **DBS Foundation Coding Camp 2026** yang menggabungkan:
-    - 🧠 **AI Engineering:** Deep Learning dengan TensorFlow (custom layer, custom loss, model inference)
-    - 📊 **Data Science:** EDA, visualisasi interaktif, A/B testing, dan Streamlit dashboard
+st.markdown(
+    '<div class="section-title">🎯 Fitur Utama</div>',
+    unsafe_allow_html=True
+)
 
-    Tujuan utama: membantu pengguna mengontrol pengeluaran mikro (micro-spending) melalui analisis data dan prediksi AI.
-    """)
-
-with c2:
-    st.markdown('<div class="section-title">🎯 Fitur Utama</div>', unsafe_allow_html=True)
-    st.markdown("""
-    | Fitur | Deskripsi |
-    |-------|-----------|
-    | ➕ **Tambah Transaksi** | Input pengeluaran harian |
-    | 📋 **Riwayat** | Kelola data historis |
-    | 🚨 **Prediksi AI** | Deteksi risiko & micro-spending |
-    | 📊 **Visualisasi** | EDA interaktif |
-    | 🧪 **A/B Testing** | Uji signifikansi antar kategori |
-    | 📰 **Literasi** | Berita ekonomi & edukasi finansial |
-    """)
+st.markdown("""
+- ➕ **Tambah Transaksi** — Mencatat pemasukan dan pengeluaran harian.
+- 📋 **Riwayat Transaksi** — Menampilkan dan mengelola data historis transaksi.
+- 🚨 **Prediksi & Peringatan AI** — Memprediksi tren pengeluaran dan memberikan peringatan dini.
+- 📊 **Analisis Dataset** — Menyajikan visualisasi dan insight dari data transaksi.
+- 🧪 **A/B Testing** — Membandingkan pola pengeluaran antar kategori.
+- 📰 **Literasi Finansial** — Menyediakan edukasi dan informasi finansial.
+""")
 
 # ============================================================
 # FOOTER
