@@ -88,9 +88,6 @@ st.markdown("""
         color: #94a3b8;
         margin-top: 0.2rem;
     }
-    .flag-danger { color: #ef4444; font-weight: 600; }
-    .flag-warning { color: #f59e0b; font-weight: 600; }
-    .flag-safe { color: #10b981; font-weight: 600; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -98,22 +95,14 @@ st.markdown("""
 # HEADER
 # ============================================================================
 st.title("📊 Visualisasi Dataset & Business Questions")
-st.caption("Hasil analisis data transaksi 10 tahun (2015-2025).")
+st.caption("Hasil analisis EDA CentSaver — 16.953 transaksi, 2015–2025.")
 
 # ============================================================================
-# MOCK DATA 
+# MOCK DATA — SESUAI NOTEBOOK DS2
 # ============================================================================
-df = pd.read_csv("data/centsaver_master_relabelling.csv")
-df["date"] = pd.to_datetime(df["date"])
-df["period_str"] = df["date"].dt.to_period("M").astype(str)
-df["day_name"] = df["date"].dt.day_name()
-df["day_type"] = df["day_name"].apply(lambda x: "Weekend" if x in ["Saturday","Sunday"] else "Weekday")
-df["is_micro"] = df["label"] == 1
-
-# --- MOCK DATA DARI NOTEBOOK EDA ---
 np.random.seed(42)
 
-# 1. Kategori TOP 5 + Lainnya
+# 1. Distribusi Kategori
 top5_cats = pd.DataFrame({
     "category": [
         "Makanan & Minuman", "Kebutuhan Dapur", "Belanja & Lifestyle",
@@ -128,31 +117,30 @@ top5_cats = pd.DataFrame({
 })
 top5_cats["percentage"] = (top5_cats["total_amount"] / top5_cats["total_amount"].sum() * 100).round(1)
 
-# 2. Micro-spending ratio
+# 2. Micro-Spending Ratio 
 micro_ratio = pd.DataFrame({
     "category": [
-        "Hobi & Olahraga", "Keluarga & Sosial", "Kesehatan", "Perjalanan",
-        "Kebutuhan Rumah Tangga", "Sewa & Cicilan", "Lainnya",
-        "Pendidikan", "Kopi & Minuman", "Belanja & Lifestyle"
+        "Transportasi", "Kopi & Minuman", "Langganan Digital", "Makanan & Minuman",
+        "Hiburan & Gaya Hidup", "Belanja & Lifestyle", "Elektronik",
+        "Kebutuhan Rumah Tangga", "Kebutuhan Dapur", "Hobi & Olahraga"
     ],
-    "avg_micro_pct": [42.59, 20.82, 17.20, 14.90, 14.09, 13.57, 12.55, 12.07, 11.84, 9.76],
-    "flagged": [True, True, False, False, False, False, False, False, False, False]
+    "avg_micro_pct": [15.86, 13.53, 12.45, 10.90, 5.23, 0.00, 0.00, 0.00, 0.00, 0.00]
 })
+micro_ratio["flagged"] = micro_ratio["avg_micro_pct"] > 10
 
-# 3. Anomaly rate (dari Quest #3 notebook, hal 31-34)
+# 3. Anomaly Rate
 anomaly_data = pd.DataFrame({
     "category": [
         "Belanja & Lifestyle", "Hiburan & Gaya Hidup", "Kecantikan & Perawatan",
         "Transportasi", "Pendidikan", "Hobi & Olahraga",
         "Elektronik", "Keluarga & Sosial"
     ],
-    "anomaly_rate": [0.0738, 0.0659, 0.0598, 0.0584, 0.0563, 0.0548, 0.0526, 0.0502],
-    "max_growth": [13.25, 6.25, 75.44, 0.00, 0.00, 8.33, 5.26, 4.17]
+    "anomaly_rate": [0.0738, 0.0659, 0.0598, 0.0584, 0.0563, 0.0548, 0.0526, 0.0502]
 })
 
-# 4. Weekend impulse (dari Quest #3 notebook, hal 31-34)
+# 4. Weekend Impulse
 weekend_impulse = pd.DataFrame({
-    "category": ["Transportasi", "Langganan Digital", "Kopi & Minuman", "Makanan & Minuman", 
+    "category": ["Transportasi", "Langganan Digital", "Kopi & Minuman", "Makanan & Minuman",
                  "Hiburan & Gaya Hidup", "Belanja & Lifestyle", "Elektronik"],
     "weekend_boost": [0.63, 0.62, 0.43, 0.40, 0.35, 0.28, 0.15]
 })
@@ -168,13 +156,13 @@ tab_viz, tab_bq = st.tabs(["📊 Visualisasi Dataset", "💡 Business Questions"
 with tab_viz:
 
     # --- KPI CARDS ---
-    st.markdown("### 📈 Ringkasan")
+    st.markdown("### 📈 Ringkasan Dataset")
     kpi_cols = st.columns(4)
     kpis = [
-        ("💰 Total", "Rp 4.38 M", "10 tahun"),
-        ("📝 Transaksi", "16,953", "87.8% normal"),
-        ("⚠️ Leakage", "2 kategori", ">20% micro"),
-        ("🎯 Akurasi", "91.88%", "model RF")
+        ("💰 Total Transaksi", "Rp 4.38 M", "10 tahun (2015–2025)"),
+        ("📝 Jumlah Data", "16,953", "18 kategori"),
+        ("📊 Label", "87.8% Normal", "12.2% Micro-spending"),
+        ("⚠️ Outlier", "12.2%", "> Rp 590.950")
     ]
     for col, (icon, val, lbl) in zip(kpi_cols, kpis):
         with col:
@@ -214,15 +202,17 @@ with tab_viz:
 
         st.markdown("""
         <div class="insight-card">
-            <div class="insight-title">💡 Temuan</div>
+            <div class="insight-title">💡 Insight</div>
             <div class="insight-body">
-                Makanan & Minuman paling besar (26.7%). Sisanya digabung jadi "Lainnya" biar tidak terlalu ramai. Sewa & Cicilan nominalnya gede tapi jarang — biasanya bayar tahunan.
+                Mayoritas pengeluaran terkonsentrasi pada Makanan & Minuman (26.7%) yang mencerminkan 
+                kebutuhan harian dengan frekuensi tinggi. Sewa & Cicilan meskipun nominalnya besar, 
+                sifatnya sporadis — biasanya pembayaran tahunan yang bisa diprediksi.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     with right:
-        st.subheader("📊 Micro-Spending Ratio")
+        st.subheader("📊 Micro-Spending Ratio per Kategori")
 
         colors = ["#ef4444" if f else "#3b82f6" for f in micro_ratio["flagged"]]
         fig_micro = px.bar(
@@ -231,8 +221,8 @@ with tab_viz:
             color_discrete_map={True: "#ef4444", False: "#3b82f6"},
             text=micro_ratio["avg_micro_pct"].apply(lambda x: f"{x:.1f}%")
         )
-        fig_micro.add_vline(x=20, line_dash="dash", line_color="#f59e0b", 
-                           annotation_text="Batas 20%", annotation_position="top")
+        fig_micro.add_vline(x=10, line_dash="dash", line_color="#f59e0b", 
+                           annotation_text="Batas 10%", annotation_position="top")
         fig_micro.update_traces(
             textposition="outside", textfont=dict(size=9, color="#f8fafc"),
             hovertemplate="<b>%{y}</b><br>%{x:.1f}%<extra></extra>"
@@ -249,9 +239,11 @@ with tab_viz:
 
         st.markdown("""
         <div class="insight-card">
-            <div class="insight-title">💡 Temuan</div>
+            <div class="insight-title">💡 Insight</div>
             <div class="insight-body">
-                Hobi & Olahraga 42.6% — hampir separuh! Keluarga & Sosial juga kena 20.8%. Rata-rata keseluruhan cuma 6.5%, jadi kalau pakai batas yang sama buat semua kategori, banyak yang lolos.
+                Tiga kategori kebutuhan harian mendominasi micro-spending: Transportasi (15.9%), 
+                Kopi & Minuman (13.5%), dan Langganan Digital (12.5%). Berbeda dengan asumsi umum, 
+                pengeluaran kecil justru lebih banyak terjadi pada aktivitas rutin dibandingkan hobi.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -262,7 +254,7 @@ with tab_viz:
     left2, right2 = st.columns(2)
 
     with left2:
-        st.subheader("🔥 Anomaly Rate")
+        st.subheader("🔥 Anomaly Rate per Kategori")
 
         fig_anom = px.bar(
             anomaly_data, y="category", x="anomaly_rate",
@@ -287,15 +279,17 @@ with tab_viz:
 
         st.markdown("""
         <div class="insight-card">
-            <div class="insight-title">💡 Temuan</div>
+            <div class="insight-title">💡 Insight</div>
             <div class="insight-body">
-                Belanja & Lifestyle paling tidak stabil — 7.4% bulannya anomali. Lonjakannya bisa 13x dari bulan sebelumnya. Ini yang paling susah diprediksi.
+                Belanja & Lifestyle menunjukkan ketidakstabilan tertinggi dengan 7.4% periode mengalami 
+                anomali. Lonjakannya tidak mengikuti pola musiman, sehingga sulit dideteksi dengan 
+                peramalan konvensional dan memerlukan pendekatan berbasis perilaku.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     with right2:
-        st.subheader("⚡ Weekend Impulse")
+        st.subheader("⚡ Weekend Impulse Boost")
 
         fig_wknd = px.bar(
             weekend_impulse, y="category", x="weekend_boost",
@@ -320,56 +314,40 @@ with tab_viz:
 
         st.markdown("""
         <div class="insight-card">
-            <div class="insight-title">💡 Temuan</div>
+            <div class="insight-title">💡 Insight</div>
             <div class="insight-body">
-                Transportasi naik 63% di akhir pekan. Langganan Digital juga naik 62%. Orang lebih sering beli pulsa/streaming pas Sabtu-Minggu.
+                Akhir pekan menjadi waktu rawan bagi beberapa kategori. Transportasi melonjak 63% 
+                dan Langganan Digital 62% — kemungkinan besar karena aktivitas rekreasi dan 
+                hiburan digital yang meningkat saat waktu luang.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
-    # --- EDA EXPANDER ---
-    with st.expander("🔬 Detail EDA (untuk reviewer)", expanded=False):
-        st.caption("Data lengkap ada di notebook. Ini ringkasannya.")
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("""
-            <div style="background: #1e293b; padding: 0.8rem; border-radius: 8px; font-size: 0.8rem; color: #cbd5e1;">
-                <b>Distribusi Label</b><br>
-                Normal: 87.83% (14,892)<br>
-                Micro: 12.17% (2,061)
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div style="background: #1e293b; padding: 0.8rem; border-radius: 8px; font-size: 0.8rem; color: #cbd5e1;">
-                <b>RFM Segment</b><br>
-                Occasional-Medium: 35% micro<br>
-                Frequent-Premium: 4% micro
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.caption("📅 Dataset: centsaver_master_relabelling.csv | 16,953 baris | 2015-2025")
-
 # =============================================================================
-# TAB 2: BUSINESS QUESTIONS 
+# TAB 2: BUSINESS QUESTIONS
 # =============================================================================
 with tab_bq:
     st.markdown("## 💡 Business Questions")
-    st.caption("Tiga pertanyaan utama dari analisis data.")
+    st.caption("Tiga pertanyaan utama dari analisis EDA.")
     st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
     # --- RQ 1 ---
     st.markdown("""
     <div class="bq-card">
         <div class="bq-question"><span class="rq-badge">RQ1</span> 
-        Seberapa besar dampak pengeluaran kecil yang tidak disadari terhadap total pengeluaran bulanan pengguna</div>
+        Seberapa besar dampak pengeluaran kecil terhadap total pengeluaran bulanan?</div>
         <div class="bq-answer">
-            <b>Kalau dirata-rata, cuma 6.5%.</b> Tapi jangan percaya rata-rata.<br><br>
-            Di kategori Hobi & Olahraga, pengeluaran kecilnya 42.6% — hampir separuh! Keluarga & Sosial juga 20.8%. Jadi kalau pakai batas 20% untuk semua kategori, Hobi bakal lolos terus.<br><br>
-            <b>Solusi:</b> Batasnya harus beda tiap kategori. Kalau Hobi sudah lebih dari 30% micro-spending, kasih peringatan.
+            Secara agregat, micro-spending menyumbang <b>3,11%</b> dari total pengeluaran per bulan. 
+            Angka ini berada di bawah ambang batas 20%, namun tidak bisa digeneralisasi.<br><br>
+            Kategori dengan proporsi tertinggi adalah <b>Transportasi (15,86%)</b>, 
+            <b>Kopi & Minuman (13,53%)</b>, dan <b>Langganan Digital (12,45%)</b>. 
+            Temuan ini menunjukkan pengeluaran kecil lebih banyak terjadi pada kebutuhan harian berulang 
+            dibandingkan pengeluaran hobi atau sosial.<br><br>
+            <b>Rekomendasi:</b> Tetapkan ambang batas per kategori berdasarkan median historis. 
+            Untuk kategori frekuensi tinggi seperti Transportasi dan Kopi & Minuman, 
+            aktifkan peringatan saat akumulasi mingguan melebihi kuartil bawah.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -378,11 +356,16 @@ with tab_bq:
     st.markdown("""
     <div class="bq-card">
         <div class="bq-question"><span class="rq-badge">RQ2</span> 
-        Mampukah model AI sederhana secara otomatis dan akurat membedakan pengeluaran impulsif dengan transaksi kebutuhan pokok</div>
+        Apa karakteristik yang membedakan transaksi micro-spending dengan normal?</div>
         <div class="bq-answer">
-            <b>Bisa, 91.88% akurat.</b> Targetnya cuma 85%, jadi ini lebih dari cukup.<br><br>
-            Model belajar dari 3 pola: nominal transaksi, waktu (weekday/weekend), dan kategori. Dari 100 transaksi impulsif, model bisa nangkep 83. Sisanya 17 mungkin lolos — tapi sudah jauh lebih baik daripada tidak ada deteksi sama sekali.<br><br>
-            <b>Solusi:</b> Tiap kali user input transaksi baru, model cek dalam 0.5 detik. Kalau terdeteksi impulsif, muncul pop-up: "Yakin lanjut? Ini terdeteksi sebagai pengeluaran impulsif."
+            Terdapat perbedaan signifikan antara kedua kelas. Nominal micro-spending jauh lebih rendah 
+            (rata-rata <b>Rp79.900</b> vs <b>Rp288.800</b>, median <b>Rp28.100</b> vs <b>Rp128.100</b>). 
+            Perbedaan ini signifikan secara statistik dengan effect size besar.<br><br>
+            Selain nominal, pola waktu juga berbeda: micro-spending lebih sering terjadi di <b>akhir pekan</b>. 
+            Kategori <b>Transportasi</b>, <b>Kopi & Minuman</b>, dan <b>Langganan Digital</b> 
+            memiliki micro-spending rate tertinggi.<br><br>
+            <b>Rekomendasi:</b> Gunakan tiga indikator utama untuk deteksi dini: 
+            nominal di bawah median kategori, transaksi di akhir pekan, dan frekuensi berulang di merchant sama.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -391,16 +374,21 @@ with tab_bq:
     st.markdown("""
     <div class="bq-card">
         <div class="bq-question"><span class="rq-badge">RQ3</span> 
-        Fitur interaktif apa yang paling efektif dalam meningkatkan kesadaran pengelolaan keuangan pengguna</div>
+        Visualisasi apa yang paling efektif untuk menyoroti lonjakan pengeluaran?</div>
         <div class="bq-answer">
-            <b>Heatmap pertumbuhan bulanan (MoM Growth).</b> Kenapa? Karena manusia lebih cepat tangkap warna daripada angka.<br><br>
-            Bayangin buka dashboard, terus lihat ada kotak merah di kategori Belanja. Langsung ngeh — "Wah, belanjaku naik nih!" Kalau cuma tabel angka, banyak yang tidak sadar.<br><br>
-            <b>Urutan efektivitas:</b><br>
-            1. Heatmap MoM Growth — sadar dalam 1 detik<br>
-            2. Grafik garis + titik anomali — tahu kapan mulai "salah"<br>
-            3. Batang anomaly rate — bandingkan antar kategori<br>
-            4. Weekend boost — sadar pola mingguan<br><br>
-            <b>Solusi:</b> Heatmap ditaruh paling atas dashboard. Kalau ada kotak merah, langsung kirim notifikasi: "Pengeluaran [Kategori] naik 25% bulan ini. Cek detailnya."
+            <b>Heatmap Month-over-Month (MoM) Growth</b> adalah visualisasi paling efektif. 
+            Perubahan warna kontras lebih cepat menarik perhatian dibandingkan angka dalam tabel.<br><br>
+            <b>Belanja & Lifestyle</b> tercatat paling volatile dengan anomaly rate <b>7,37%</b>. 
+            Analisis weekend juga menunjukkan <b>Transportasi</b> dan <b>Langganan Digital</b> 
+            memiliki lonjakan signifikan di akhir pekan.<br><br>
+            <b>Urutan efektivitas visualisasi:</b><br>
+            1. Heatmap MoM Growth — deteksi spike dalam 1 detik<br>
+            2. Grafik garis + penanda anomali — konteks historis dan musiman<br>
+            3. Batang perbandingan antarkategori — melihat kategori paling tidak stabil<br>
+            4. Weekend impulse boost — identifikasi pola akhir pekan<br><br>
+            <b>Rekomendasi:</b> Tempatkan heatmap di posisi utama dashboard. 
+            Jika terdeteksi kotak merah (lonjakan >20%), sistem otomatis mengirim notifikasi: 
+            <i>"Pengeluaran [Kategori] naik signifikan dari bulan lalu."</i>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -417,10 +405,10 @@ with tab_bq:
         <div style="background-color: #1e293b; padding: 1rem; border-radius: 12px; border-left: 4px solid #10b981;">
             <h4 style="color: #34d399; margin-bottom: 0.6rem; font-size: 0.95rem;">✅ Kesimpulan</h4>
             <ul style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.6; padding-left: 1.2rem;">
-                <li>Pengeluaran kecil itu berbahaya. Rata-rata 6.5%, tapi Hobi bisa 42.6%.</li>
-                <li>Model AI akurat 91.88%. Siap dipakai di aplikasi nyata.</li>
-                <li>Warna lebih powerful daripada angka. Heatmap paling efektif.</li>
-                <li>Tiap kategori beda. Batas harus disesuaikan, bukan satu aturan.</li>
+                <li>Micro-spending rata-rata 3,11% per bulan, namun terkonsentrasi di kategori kebutuhan harian: Transportasi, Kopi & Minuman, dan Langganan Digital.</li>
+                <li>Transaksi micro-spending memiliki nominal jauh lebih kecil dan cenderung terjadi di akhir pekan. Perbedaan ini signifikan secara statistik.</li>
+                <li>Heatmap MoM Growth paling efektif memicu kesadaran. Belanja & Lifestyle adalah kategori paling volatile dengan anomaly rate 7,37%.</li>
+                <li>Karakteristik kategori dan waktu menjadi fondasi yang kuat untuk deteksi otomatis.</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -430,14 +418,14 @@ with tab_bq:
         <div style="background-color: #1e293b; padding: 1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
             <h4 style="color: #fbbf24; margin-bottom: 0.6rem; font-size: 0.95rem;">💡 Rekomendasi</h4>
             <ul style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.6; padding-left: 1.2rem;">
-                <li>Batas pengeluaran dinamis per kategori. Hobi & Keluarga paling ketat.</li>
-                <li>Tracker real-time: total micro-spending hari ini di dashboard.</li>
-                <li>Notifikasi pintar: kalau ada lonjakan >20% dari bulan lalu.</li>
-                <li>Tantangan hemat: "7 hari tanpa micro-spending" untuk user sering kena peringatan.</li>
-                <li>Reward loyal: user yang konsisten hemat dikasih reward.</li>
+                <li><b>Batas Per Kategori:</b> Sesuaikan ambang pengeluaran berdasarkan median historis masing-masing kategori, bukan satu angka untuk semua.</li>
+                <li><b>Tracker Real-Time:</b> Tampilkan akumulasi micro-spending mingguan di dashboard untuk kategori Transportasi dan Kopi & Minuman.</li>
+                <li><b>Notifikasi Pintar:</b> Trigger otomatis saat pertumbuhan bulanan >20% atau terdeteksi anomali dari pola historis.</li>
+                <li><b>Weekend Guard:</b> Peringatan khusus untuk kategori dengan lonjakan akhir pekan tinggi (Transportasi, Langganan Digital).</li>
+                <li><b>Segmentasi Pengguna:</b> Fokus edukasi finansial pada segmen dengan frekuensi rendah dan nominal menengah, karena mereka memiliki micro-spending rate tertinggi.</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
-    st.caption("📅 Dataset: centsaver_master_relabelling.csv | 16,953 baris | 2015-2025 | CentSaver")
+    st.caption("📅 Dataset: centsaver_master_relabelling.csv | 16.953 baris | 2015–2025 | CentSaver")
