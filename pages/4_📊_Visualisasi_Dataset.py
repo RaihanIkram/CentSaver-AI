@@ -10,6 +10,10 @@ st.set_page_config(page_title="CentSaver AI - Visualisasi Dataset", page_icon="�
 st.title("📊 Visualisasi Dataset")
 st.caption("Eksplorasi data transaksi untuk memahami pola pemasukan, pengeluaran, dan perilaku keuangan.")
 
+
+st.caption("Halaman ini untuk tim internal: Data Scientist & Product Manager")
+st.info("Memberi visualisasi terkait dataset yang digunakan untuk membangun model AI")
+
 CSV_PATH = Path("data/centsaver_master_relabelling.csv")
 if not CSV_PATH.exists():
     st.warning("❌ File `data/centsaver_master_relabelling.csv` tidak ditemukan.")
