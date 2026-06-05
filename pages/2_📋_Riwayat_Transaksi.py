@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 
-st.title("📜 Riwayat Transaksi")
+st.title(" 📋 Riwayat Transaksi")
 
 st.caption(
     "Lihat dan telusuri seluruh transaksi yang telah tercatat."

@@ -148,17 +148,36 @@ st.markdown('<div class="section-title">🎯 Apa yang Bisa Kamu Lakukan?</div>',
 st.markdown('<div class="section-sub">CentSaver menggabungkan Data Science dan Deep Learning untuk keuangan pribadimu.</div>', unsafe_allow_html=True)
 
 features = [
-    ("➕", "Catat Transaksi", "Input pengeluaran harian dengan kategori otomatis. Gampang, cepat, no ribet."),
-    ("📋", "Lihat Riwayat", "Seluruh transaksi tersimpan rapi. Filter per kategori, tanggal, atau nominal."),
-    ("🚨", "Prediksi & Peringatan", "AI mendeteksi pola micro-spending dan memberi peringatan sebelum boncos."),
-    ("📊", "Visualisasi Data", "Pahami kebiasaan belanjamu lewat grafik dan chart interaktif yang menarik."),
-    ("🧪", " Implementasi A/B Testing", "Tim produk bisa melakukan A/B Testing untuk strategi penghematan berbasis data."),
-    ("📰", "Literasi Keuangan", "Baca berita ekonomi, tips saham, dan edukasi finansial terkini di Indonesia."),
+    ("➕", "Catat Transaksi",
+     "Input pengeluaran harian dengan kategori otomatis.",
+     "pages/1_➕_Tambah_Transaksi.py"),
+
+    ("📋", "Lihat Riwayat",
+     "Seluruh transaksi tersimpan rapi.",
+     "pages/2_📋_Riwayat_Transaksi.py"),
+
+    ("🚨", "Prediksi & Peringatan",
+     "AI mendeteksi pola micro-spending.",
+     "pages/3_🚨_Prediksi_dan_Peringatan.py"),
+
+    ("📊", "Visualisasi Data",
+     "Pahami kebiasaan belanjamu.",
+     "pages/4_📊_Visualisasi_Dataset.py"),
+
+    ("🧪", "Implementasi A/B Testing",
+     "Strategi penghematan berbasis data.",
+     "pages/7_🧪_Implementasi_AB_Testing.py"),
+
+    ("📰", "Literasi Keuangan",
+     "Berita dan edukasi finansial.",
+     "pages/6_📰_Literasi_Keuangan.py"),
 ]
+
 
 for i in range(0, len(features), 3):
     cols = st.columns(3)
-    for col, (icon, title, desc) in zip(cols, features[i:i+3]):
+
+    for col, (icon, title, desc, page) in zip(cols, features[i:i+3]):
         with col:
             st.markdown(f"""
             <div class="card">
@@ -167,6 +186,9 @@ for i in range(0, len(features), 3):
                 <p>{desc}</p>
             </div>
             """, unsafe_allow_html=True)
+
+            if st.button("Buka", key=title):
+                st.switch_page(page)
 
 st.divider()
 
