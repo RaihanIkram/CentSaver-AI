@@ -98,7 +98,7 @@ pip install -r requirements.txt
 
 ### 2. Jalankan Streamlit
 ```bash
-streamlit run main.py
+streamlit run Dashboard.py
 ```
 
 Akses di browser: `https://centsaver-cc26-pru458.streamlit.app/`
