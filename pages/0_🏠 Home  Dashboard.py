@@ -191,28 +191,11 @@ st.markdown("""
 st.divider()
 
 # ============================================================
-# TENTANG
-# ============================================================
-st.markdown(
-    '<div class="section-title">🎯 Fitur Utama</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown("""
-- ➕ **Tambah Transaksi** — Mencatat pemasukan dan pengeluaran harian.
-- 📋 **Riwayat Transaksi** — Menampilkan dan mengelola data historis transaksi.
-- 🚨 **Prediksi & Peringatan AI** — Memprediksi tren pengeluaran dan memberikan peringatan dini.
-- 📊 **Analisis Dataset** — Menyajikan visualisasi dan insight dari data transaksi.
-- 🧪 **A/B Testing** — Membandingkan pola pengeluaran antar kategori.
-- 📰 **Literasi Finansial** — Menyediakan edukasi dan informasi finansial.
-""")
-
-# ============================================================
 # FOOTER
 # ============================================================
 st.markdown("""
 <div class="footer">
-    <b>CentSaver AI</b> — DBS Foundation Coding Camp 2026<br>
+    <b>CentSaver </b> — DBS Foundation Coding Camp 2026<br>
     "Mulai dari yang mikro, capai yang makro."
 </div>
 """, unsafe_allow_html=True)
