@@ -485,102 +485,105 @@ def render_business_questions(df):
     c2.metric("Kategori di atas threshold", f"{len(flagged_cats)}")
     c3.metric("Threshold analisis", f"{THRESHOLD}%")
 
-    # Chart 1: line overall monthly micro pct
-    fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(
-        x=overall_monthly["period_dt"],
-        y=overall_monthly["micro_pct"],
-        mode="lines+markers",
-        name="Micro-spending %",
-        line=dict(width=3),
-        hovertemplate="%{x|%Y-%m}<br>Micro-spending: %{y:.2f}%<extra></extra>",
-    ))
-    fig1.add_hline(
-        y=THRESHOLD,
-        line_dash="dash",
-        line_color="red",
-        annotation_text=f"Threshold {THRESHOLD}%",
-        annotation_position="top left",
-    )
-    fig1.update_layout(
-        title="A. Proporsi Micro-spending terhadap Total Pengeluaran Bulanan",
-        template="plotly_dark",
-        height=420,
-        hovermode="x unified",
-        margin=dict(l=30, r=20, t=60, b=30),
-    )
-    fig1.update_xaxes(dtick="M12", tickformat="%Y", title="Tahun")
-    fig1.update_yaxes(title="Persentase (%)")
-    st.plotly_chart(fig1, use_container_width=True)
+    with st.expander("📊 Lihat Visualisasi RQ1", expanded=False):
 
-    # Chart 2: top 10 categories
-    top10 = avg_micro_by_cat.head(10).copy()
-    top10["color"] = np.where(top10["category"].isin(flagged_cats), "crimson", "steelblue")
+        st.markdown("### 📊 Dampak Micro-Spending terhadap Pengeluaran Bulanan")
 
-    fig2 = go.Figure(go.Bar(
-        x=top10["avg_micro_pct"][::-1],
-        y=top10["category"][::-1],
-        orientation="h",
-        marker_color=top10["color"][::-1],
-        hovertemplate="%{y}<br>Avg micro-spending: %{x:.2f}%<extra></extra>",
-        name="Avg micro-spending",
-    ))
-    fig2.add_vline(x=THRESHOLD, line_dash="dash", line_color="red")
-    fig2.update_layout(
-        title="B. Rata-rata Micro-spending Ratio per Kategori",
-        template="plotly_dark",
-        height=420,
-        margin=dict(l=30, r=20, t=60, b=30),
-        showlegend=False,
-    )
-    fig2.update_xaxes(title="Persentase (%)")
-    fig2.update_yaxes(title="")
-    st.plotly_chart(fig2, use_container_width=True)
-
-    # Chart 3: stacked spending top 5 categories
-    top5_micro_cats = avg_micro_by_cat.head(5)["category"].tolist()
-    stacked = (
-        monthly_micro[monthly_micro["category"].isin(top5_micro_cats)]
-        .groupby("period_dt")
-        .agg(
-            micro=("micro_monthly", "sum"),
-            total=("total_monthly", "sum"),
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(
+            x=overall_monthly["period_dt"],
+            y=overall_monthly["micro_pct"],
+            mode="lines+markers",
+            name="Persentase Micro-Spending",
+            line=dict(width=3),
+            hovertemplate="%{x|%Y-%m}<br>Micro-spending: %{y:.2f}%<extra></extra>",
+        ))
+        fig1.add_hline(
+            y=THRESHOLD,
+            line_dash="dash",
+            line_color="red",
+            annotation_text=f"Ambang {THRESHOLD}%",
+            annotation_position="top left",
         )
-        .reset_index()
-        .sort_values("period_dt")
-    )
-    stacked["non_micro"] = stacked["total"] - stacked["micro"]
+        fig1.update_layout(
+            title="A. Proporsi Micro-Spending terhadap Total Pengeluaran Bulanan",
+            template="plotly_dark",
+            height=420,
+            hovermode="x unified",
+            margin=dict(l=30, r=20, t=60, b=30),
+        )
+        fig1.update_xaxes(dtick="M12", tickformat="%Y", title="Tahun")
+        fig1.update_yaxes(title="Persentase (%)")
+        st.plotly_chart(fig1, use_container_width=True)
 
-    fig3 = go.Figure()
-    fig3.add_trace(go.Scatter(
-        x=stacked["period_dt"],
-        y=stacked["micro"],
-        mode="lines",
-        name="Micro-spending",
-        stackgroup="one",
-        line=dict(width=0.8),
-        hovertemplate="%{x|%Y-%m}<br>Micro: Rp %{y:,.0f}<extra></extra>",
-    ))
-    fig3.add_trace(go.Scatter(
-        x=stacked["period_dt"],
-        y=stacked["non_micro"],
-        mode="lines",
-        name="Non-Micro",
-        stackgroup="one",
-        line=dict(width=0.8),
-        hovertemplate="%{x|%Y-%m}<br>Non-Micro: Rp %{y:,.0f}<extra></extra>",
-    ))
-    fig3.update_layout(
-        title="C. Akumulasi Pengeluaran pada 5 Kategori Micro-Spending Teratas",
-        template="plotly_dark",
-        height=420,
-        hovermode="x unified",
-        margin=dict(l=30, r=20, t=60, b=30),
-    )
-    fig3.update_xaxes(dtick="M12", tickformat="%Y", title="Tahun")
-    fig3.update_yaxes(title="Nominal (Rp)")
-    st.plotly_chart(fig3, use_container_width=True)
+        top10 = avg_micro_by_cat.head(10).copy()
+        top10["color"] = np.where(top10["category"].isin(flagged_cats), "crimson", "steelblue")
 
+        fig2 = go.Figure(go.Bar(
+            x=top10["avg_micro_pct"][::-1],
+            y=top10["category"][::-1],
+            orientation="h",
+            marker_color=top10["color"][::-1],
+            hovertemplate="%{y}<br>Rata-rata micro-spending: %{x:.2f}%<extra></extra>",
+            name="Rata-rata micro-spending",
+        ))
+        fig2.add_vline(x=THRESHOLD, line_dash="dash", line_color="red")
+        fig2.update_layout(
+            title="B. Rata-rata Persentase Micro-Spending per Kategori",
+            template="plotly_dark",
+            height=420,
+            margin=dict(l=30, r=20, t=60, b=30),
+            showlegend=False,
+        )
+        fig2.update_xaxes(title="Persentase (%)")
+        fig2.update_yaxes(title="")
+        st.plotly_chart(fig2, use_container_width=True)
+
+        top5_micro_cats = avg_micro_by_cat.head(5)["category"].tolist()
+        stacked = (
+            monthly_micro[monthly_micro["category"].isin(top5_micro_cats)]
+            .groupby("period_dt")
+            .agg(
+                micro=("micro_monthly", "sum"),
+                total=("total_monthly", "sum"),
+            )
+            .reset_index()
+            .sort_values("period_dt")
+        )
+        stacked["non_micro"] = stacked["total"] - stacked["micro"]
+
+        fig3 = go.Figure()
+        fig3.add_trace(go.Scatter(
+            x=stacked["period_dt"],
+            y=stacked["micro"],
+            mode="lines",
+            name="Micro-spending",
+            stackgroup="one",
+            line=dict(width=0.8),
+            hovertemplate="%{x|%Y-%m}<br>Micro: Rp %{y:,.0f}<extra></extra>",
+        ))
+        fig3.add_trace(go.Scatter(
+            x=stacked["period_dt"],
+            y=stacked["non_micro"],
+            mode="lines",
+            name="Non-Micro",
+            stackgroup="one",
+            line=dict(width=0.8),
+            hovertemplate="%{x|%Y-%m}<br>Non-Micro: Rp %{y:,.0f}<extra></extra>",
+        ))
+        fig3.update_layout(
+            title="C. Akumulasi Pengeluaran pada 5 Kategori Micro-Spending Teratas",
+            template="plotly_dark",
+            height=420,
+            hovermode="x unified",
+            margin=dict(l=30, r=20, t=60, b=30),
+        )
+        fig3.update_xaxes(dtick="M12", tickformat="%Y", title="Tahun")
+        fig3.update_yaxes(title="Nominal (Rp)")
+        st.plotly_chart(fig3, use_container_width=True)
+
+    st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
+    
     # ============================================================
     # RQ2 - KARAKTERISTIK MICRO-SPENDING VS NORMAL
     # ============================================================
@@ -625,242 +628,247 @@ def render_business_questions(df):
         df["is_weekend"] = (df["date"].dt.dayofweek >= 5).astype(int)
 
     # ------------------------------------------------------------
-    # TABEL STATISTIK RINGKAS
+    # BUKA / TUTUP VISUALISASI
     # ------------------------------------------------------------
-    rq2_summary = pd.DataFrame({
-    "Indikator": [
-        "Rata-rata nominal",
-        "Median nominal",
-        "Simpangan baku",
-        "Rata-rata log nominal",
-        "Rata-rata hari transaksi",
-        "Persentase transaksi akhir pekan"
-    ],
-    "Transaksi Normal": [
-        normal_df["amount"].mean(),
-        normal_df["amount"].median(),
-        normal_df["amount"].std(),
-        normal_df["amount_log"].mean(),
-        normal_df["day_of_week"].mean(),
-        normal_df["is_weekend"].mean() * 100
-    ],
-    "Micro-spending": [
-        micro_df["amount"].mean(),
-        micro_df["amount"].median(),
-        micro_df["amount"].std(),
-        micro_df["amount_log"].mean(),
-        micro_df["day_of_week"].mean(),
-        micro_df["is_weekend"].mean() * 100
-    ]
-})
+    with st.expander("📊 Lihat Visualisasi RQ2", expanded=False):   
+        
+        # ------------------------------------------------------------
+        # TABEL STATISTIK RINGKAS
+        # ------------------------------------------------------------
+        rq2_summary = pd.DataFrame({
+        "Indikator": [
+            "Rata-rata nominal",
+            "Median nominal",
+            "Simpangan baku",
+            "Rata-rata log nominal",
+            "Rata-rata hari transaksi",
+            "Persentase transaksi akhir pekan"
+        ],
+        "Transaksi Normal": [
+            normal_df["amount"].mean(),
+            normal_df["amount"].median(),
+            normal_df["amount"].std(),
+            normal_df["amount_log"].mean(),
+            normal_df["day_of_week"].mean(),
+            normal_df["is_weekend"].mean() * 100
+        ],
+        "Micro-spending": [
+            micro_df["amount"].mean(),
+            micro_df["amount"].median(),
+            micro_df["amount"].std(),
+            micro_df["amount_log"].mean(),
+            micro_df["day_of_week"].mean(),
+            micro_df["is_weekend"].mean() * 100
+        ]
+    })
 
-    st.markdown("### 📌 Ringkasan Statistik")
-    st.dataframe(
-    rq2_summary.style.format({
-        "Transaksi Normal": "Rp {:,.0f}",
-        "Micro-spending": "Rp {:,.0f}"
-    }),
-    use_container_width=True,
-    hide_index=True
-)
+        st.markdown("### 📌 Ringkasan Statistik")
+        st.dataframe(
+        rq2_summary.style.format({
+            "Transaksi Normal": "Rp {:,.0f}",
+            "Micro-spending": "Rp {:,.0f}"
+        }),
+        use_container_width=True,
+        hide_index=True
+    )
 
-    # ------------------------------------------------------------
-    # UJI STATISTIK
-    # ------------------------------------------------------------
-    t_stat, p_val = stats.ttest_ind(
+        # ------------------------------------------------------------
+        # UJI STATISTIK
+        # ------------------------------------------------------------
+        t_stat, p_val = stats.ttest_ind(
+            micro_df["amount"],
+            normal_df["amount"],
+            equal_var=False,
+            nan_policy="omit"
+    )
+
+        u_stat, u_pval = stats.mannwhitneyu(
         micro_df["amount"],
         normal_df["amount"],
-        equal_var=False,
-        nan_policy="omit"
-)
-
-    u_stat, u_pval = stats.mannwhitneyu(
-    micro_df["amount"],
-    normal_df["amount"],
-    alternative="two-sided"
-)
-
-    pooled_std = np.sqrt(
-    ((len(micro_df) - 1) * micro_df["amount"].var() + (len(normal_df) - 1) * normal_df["amount"].var())
-    / (len(micro_df) + len(normal_df) - 2)
-)
-
-    cohens_d = (micro_df["amount"].mean() - normal_df["amount"].mean()) / pooled_std
-
-    st.markdown("### 📊 Hasil Uji Statistik")
-    m1, m2, m3 = st.columns(3)
-    m1.metric(
-    "p-value t-test",
-    "< 0.0001" if p_val < 0.0001 else f"{p_val:.4f}"
-)
-    m2.metric(
-    "p-value Mann-Whitney",
-    "< 0.0001" if u_pval < 0.0001 else f"{u_pval:.4f}"
+        alternative="two-sided"
     )
-    m3.metric("Cohen's d", f"{cohens_d:.2f}")
 
-    st.caption(
-    "Nilai p yang sangat kecil menunjukkan perbedaan yang signifikan antara transaksi micro-spending dan normal."
-)
+        pooled_std = np.sqrt(
+        ((len(micro_df) - 1) * micro_df["amount"].var() + (len(normal_df) - 1) * normal_df["amount"].var())
+        / (len(micro_df) + len(normal_df) - 2)
+    )
+
+        cohens_d = (micro_df["amount"].mean() - normal_df["amount"].mean()) / pooled_std
+
+        st.markdown("### 📊 Hasil Uji Statistik")
+        m1, m2, m3 = st.columns(3)
+        m1.metric(
+        "p-value t-test",
+        "< 0.0001" if p_val < 0.0001 else f"{p_val:.4f}"
+    )
+        m2.metric(
+        "p-value Mann-Whitney",
+        "< 0.0001" if u_pval < 0.0001 else f"{u_pval:.4f}"
+        )
+        m3.metric("Cohen's d", f"{cohens_d:.2f}")
+
+        st.caption(
+        "Nilai p yang sangat kecil menunjukkan perbedaan yang signifikan antara transaksi micro-spending dan normal."
+    )
+
+        # ------------------------------------------------------------
+        # VISUALISASI 1 & 2
+        # ------------------------------------------------------------
+        st.markdown("### 📈 Visualisasi Perbedaan Nominal")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            fig5 = go.Figure()
+
+            fig5.add_trace(go.Histogram(
+            x=normal_df["amount"],
+            nbinsx=50,
+            name="Transaksi Normal",
+            opacity=0.6,
+            marker_color="steelblue",
+            hovertemplate="Nominal: Rp %{x:,.0f}<extra>Transaksi Normal</extra>"
+        ))
+
+            fig5.add_trace(go.Histogram(
+            x=micro_df["amount"],
+            nbinsx=50,
+            name="Micro-spending",
+            opacity=0.6,
+            marker_color="coral",
+            hovertemplate="Nominal: Rp %{x:,.0f}<extra>Micro-spending</extra>"
+        ))
+
+            fig5.update_layout(
+            barmode="overlay",
+            title="Distribusi Nominal Transaksi",
+            template="plotly_dark",
+            height=420,
+            margin=dict(l=20, r=20, t=60, b=20),
+            legend_title_text=""
+        )
+            fig5.update_xaxes(title="Nominal Transaksi (Rp)")
+            fig5.update_yaxes(title="Jumlah Transaksi")
+            st.plotly_chart(fig5, use_container_width=True)
+
+        with col2:
+            fig6 = px.box(
+            df,
+            x="label",
+            y="amount_winsorized",
+            points="outliers",
+            title="Perbandingan Nominal Transaksi",
+            template="plotly_dark"
+        )
+            fig6.update_xaxes(
+            tickmode="array",
+            tickvals=[0, 1],
+            ticktext=["Transaksi Normal", "Micro-spending"],
+            title="Jenis Transaksi"
+        )
+            fig6.update_yaxes(title="Nominal Winsorized (Rp)")
+            fig6.update_layout(height=420, margin=dict(l=20, r=20, t=60, b=20))
+            st.plotly_chart(fig6, use_container_width=True)
 
     # ------------------------------------------------------------
-    # VISUALISASI 1 & 2
+    # VISUALISASI 3 & 4
     # ------------------------------------------------------------
-    st.markdown("### 📈 Visualisasi Perbedaan Nominal")
+        st.markdown("### 🕒 Pola Waktu dan Kategori")
 
-    col1, col2 = st.columns(2)
+        col3, col4 = st.columns(2)
 
-    with col1:
-        fig5 = go.Figure()
+        with col3:
+            weekend_comp = (
+            df.groupby(["label", "is_weekend"])
+            .size()
+            .unstack(fill_value=0)
+            .reindex(index=[0, 1], columns=[0, 1], fill_value=0)
+        )
 
-        fig5.add_trace(go.Histogram(
-        x=normal_df["amount"],
-        nbinsx=50,
-        name="Transaksi Normal",
-        opacity=0.6,
-        marker_color="steelblue",
-        hovertemplate="Nominal: Rp %{x:,.0f}<extra>Transaksi Normal</extra>"
-    ))
+            weekend_comp_pct = weekend_comp.div(weekend_comp.sum(axis=1), axis=0) * 100
+            weekend_plot_df = weekend_comp_pct.reset_index().melt(
+            id_vars="label",
+            var_name="Jenis Hari",
+            value_name="Persentase"
+        )
 
-        fig5.add_trace(go.Histogram(
-        x=micro_df["amount"],
-        nbinsx=50,
-        name="Micro-spending",
-        opacity=0.6,
-        marker_color="coral",
-        hovertemplate="Nominal: Rp %{x:,.0f}<extra>Micro-spending</extra>"
-    ))
+            weekend_plot_df["Jenis Transaksi"] = weekend_plot_df["label"].map({
+            0: "Transaksi Normal",
+            1: "Micro-spending"
+        })
+            weekend_plot_df["Jenis Hari"] = weekend_plot_df["Jenis Hari"].map({
+            0: "Hari Kerja",
+            1: "Akhir Pekan"
+        })
 
-        fig5.update_layout(
-        barmode="overlay",
-        title="Distribusi Nominal Transaksi",
-        template="plotly_dark",
-        height=420,
-        margin=dict(l=20, r=20, t=60, b=20),
-        legend_title_text=""
-    )
-        fig5.update_xaxes(title="Nominal Transaksi (Rp)")
-        fig5.update_yaxes(title="Jumlah Transaksi")
-        st.plotly_chart(fig5, use_container_width=True)
+            fig7 = px.bar(
+            weekend_plot_df,
+            x="Jenis Transaksi",
+            y="Persentase",
+            color="Jenis Hari",
+            barmode="group",
+            title="Perbandingan Transaksi Hari Kerja vs Akhir Pekan",
+            template="plotly_dark",
+            text_auto=".1f",
+            color_discrete_map={
+                "Hari Kerja": "steelblue",
+                "Akhir Pekan": "coral"
+            }
+        )
+            fig7.update_yaxes(title="Persentase (%)")
+            fig7.update_layout(height=420, margin=dict(l=20, r=20, t=60, b=20))
+            st.plotly_chart(fig7, use_container_width=True)
 
-    with col2:
-        fig6 = px.box(
-        df,
-        x="label",
-        y="amount_winsorized",
-        points="outliers",
-        title="Perbandingan Nominal Transaksi",
-        template="plotly_dark"
-    )
-        fig6.update_xaxes(
-        tickmode="array",
-        tickvals=[0, 1],
-        ticktext=["Transaksi Normal", "Micro-spending"],
-        title="Jenis Transaksi"
-    )
-        fig6.update_yaxes(title="Nominal Winsorized (Rp)")
-        fig6.update_layout(height=420, margin=dict(l=20, r=20, t=60, b=20))
-        st.plotly_chart(fig6, use_container_width=True)
+        with col4:
+            cat_micro_rate = (
+            df.groupby("category")["label"]
+            .mean()
+            .sort_values(ascending=False)
+            .head(10)
+            .reset_index()
+        )
 
-# ------------------------------------------------------------
-# VISUALISASI 3 & 4
-# ------------------------------------------------------------
-    st.markdown("### 🕒 Pola Waktu dan Kategori")
+            fig8 = px.bar(
+            cat_micro_rate.iloc[::-1],
+            x="label",
+            y="category",
+            orientation="h",
+            title="Tingkat Micro-spending per Kategori",
+            template="plotly_dark",
+            color="label",
+            color_continuous_scale="Purples"
+        )
+            fig8.update_xaxes(title="Tingkat Micro-spending")
+            fig8.update_yaxes(title="")
+            fig8.update_layout(
+            height=420,
+            margin=dict(l=20, r=20, t=60, b=20),
+            coloraxis_showscale=False
+        )
+            st.plotly_chart(fig8, use_container_width=True)
 
-    col3, col4 = st.columns(2)
+    # ------------------------------------------------------------
+    # KESIMPULAN RQ2
+    # ------------------------------------------------------------
+        st.markdown("""
+    <div style="
+        background-color: #1e293b;
+        padding: 1rem 1.1rem;
+        border-radius: 12px;
+        border-left: 4px solid #38bdf8;
+        margin-top: 0.8rem;
+    ">
+        <h4 style="color: #7dd3fc; margin-bottom: 0.6rem; font-size: 0.95rem;">🎯 Kesimpulan RQ2</h4>
+        <ul style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.7; padding-left: 1.2rem;">
+            <li>Nominal micro-spending jauh lebih kecil dibandingkan transaksi normal.</li>
+            <li>Perbedaan ini signifikan secara statistik, bukan hanya kebetulan sampel.</li>
+            <li>Micro-spending lebih sering muncul di akhir pekan.</li>
+            <li>Kategori seperti Transportasi, Kopi & Minuman, dan Langganan Digital memiliki tingkat micro-spending lebih tinggi.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with col3:
-        weekend_comp = (
-        df.groupby(["label", "is_weekend"])
-        .size()
-        .unstack(fill_value=0)
-        .reindex(index=[0, 1], columns=[0, 1], fill_value=0)
-    )
-
-        weekend_comp_pct = weekend_comp.div(weekend_comp.sum(axis=1), axis=0) * 100
-        weekend_plot_df = weekend_comp_pct.reset_index().melt(
-        id_vars="label",
-        var_name="Jenis Hari",
-        value_name="Persentase"
-    )
-
-        weekend_plot_df["Jenis Transaksi"] = weekend_plot_df["label"].map({
-        0: "Transaksi Normal",
-        1: "Micro-spending"
-    })
-        weekend_plot_df["Jenis Hari"] = weekend_plot_df["Jenis Hari"].map({
-        0: "Hari Kerja",
-        1: "Akhir Pekan"
-    })
-
-        fig7 = px.bar(
-        weekend_plot_df,
-        x="Jenis Transaksi",
-        y="Persentase",
-        color="Jenis Hari",
-        barmode="group",
-        title="Perbandingan Transaksi Hari Kerja vs Akhir Pekan",
-        template="plotly_dark",
-        text_auto=".1f",
-        color_discrete_map={
-            "Hari Kerja": "steelblue",
-            "Akhir Pekan": "coral"
-        }
-    )
-        fig7.update_yaxes(title="Persentase (%)")
-        fig7.update_layout(height=420, margin=dict(l=20, r=20, t=60, b=20))
-        st.plotly_chart(fig7, use_container_width=True)
-
-    with col4:
-        cat_micro_rate = (
-        df.groupby("category")["label"]
-        .mean()
-        .sort_values(ascending=False)
-        .head(10)
-        .reset_index()
-    )
-
-        fig8 = px.bar(
-        cat_micro_rate.iloc[::-1],
-        x="label",
-        y="category",
-        orientation="h",
-        title="Tingkat Micro-spending per Kategori",
-        template="plotly_dark",
-        color="label",
-        color_continuous_scale="Purples"
-    )
-        fig8.update_xaxes(title="Tingkat Micro-spending")
-        fig8.update_yaxes(title="")
-        fig8.update_layout(
-        height=420,
-        margin=dict(l=20, r=20, t=60, b=20),
-        coloraxis_showscale=False
-    )
-        st.plotly_chart(fig8, use_container_width=True)
-
-# ------------------------------------------------------------
-# KESIMPULAN RQ2
-# ------------------------------------------------------------
-    st.markdown("""
-<div style="
-    background-color: #1e293b;
-    padding: 1rem 1.1rem;
-    border-radius: 12px;
-    border-left: 4px solid #38bdf8;
-    margin-top: 0.8rem;
-">
-    <h4 style="color: #7dd3fc; margin-bottom: 0.6rem; font-size: 0.95rem;">🎯 Kesimpulan RQ2</h4>
-    <ul style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.7; padding-left: 1.2rem;">
-        <li>Nominal micro-spending jauh lebih kecil dibandingkan transaksi normal.</li>
-        <li>Perbedaan ini signifikan secara statistik, bukan hanya kebetulan sampel.</li>
-        <li>Micro-spending lebih sering muncul di akhir pekan.</li>
-        <li>Kategori seperti Transportasi, Kopi & Minuman, dan Langganan Digital memiliki tingkat micro-spending lebih tinggi.</li>
-    </ul>
-</div>
-""", unsafe_allow_html=True)
-
-    st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
     
     # ============================================================
     # RQ3 - VISUALISASI PALING EFEKTIF UNTUK MENUNJUKKAN LONJAKAN
@@ -872,8 +880,8 @@ def render_business_questions(df):
             Visualisasi apa yang paling efektif untuk menyoroti lonjakan pengeluaran?
         </div>
         <div class="bq-answer">
-            Hasil analisis menunjukkan bahwa <b>heatmap pertumbuhan bulanan (MoM Growth)</b> adalah visualisasi yang paling efektif
-            untuk mendeteksi lonjakan pengeluaran. Warna yang berubah secara kontras membuat perubahan besar lebih cepat terlihat
+            Hasil analisis menunjukkan bahwa <b>heatmap pertumbuhan bulanan (MoM)</b> adalah visualisasi yang paling efektif
+            untuk mendeteksi lonjakan pengeluaran. Perubahan warna yang kontras membuat perubahan besar lebih cepat terlihat
             dibandingkan angka dalam tabel atau grafik biasa.<br><br>
             Kategori <b>Belanja & Lifestyle</b> tercatat paling volatil, sedangkan analisis akhir pekan menunjukkan bahwa
             <b>Transportasi</b> dan <b>Langganan Digital</b> memiliki lonjakan yang cukup signifikan pada hari libur.<br><br>
@@ -926,7 +934,6 @@ def render_business_questions(df):
         .pivot(index="category", columns="is_weekend", values="micro_rate")
         .fillna(0)
     )
-
     weekend_impulse["weekend_boost"] = weekend_impulse[1] - weekend_impulse[0]
     weekend_impulse = weekend_impulse.sort_values("weekend_boost", ascending=False).head(8)
 
@@ -942,145 +949,138 @@ def render_business_questions(df):
     with col_b:
         st.metric("Tingkat anomali tertinggi", f"{top_volatile_rate:.2f}%")
 
-    st.markdown("### 📊 Heatmap Pertumbuhan Bulanan (MoM Growth)")
-
     # ------------------------------------------------------------
-    # VISUAL 1: HEATMAP MOM GROWTH
+    # BUKA / TUTUP VISUALISASI
     # ------------------------------------------------------------
-    top10_cats = anomaly_freq.head(10)["category"].tolist()
-    heatmap_data = monthly_cat[monthly_cat["category"].isin(top10_cats)].copy()
-    heatmap_data["period_str"] = heatmap_data["period_dt"].dt.strftime("%Y-%m")
+    with st.expander("📊 Lihat Visualisasi RQ3", expanded=False):
 
-    recent_months = sorted(heatmap_data["period_str"].unique())[-24:]
+        st.markdown("### 📊 Heatmap Pertumbuhan Bulanan")
 
-    pivot_growth = heatmap_data.pivot_table(
-        index="category",
-        columns="period_str",
-        values="mom_growth_pct",
-        fill_value=0
-    )
+        top10_cats = anomaly_freq.head(10)["category"].tolist()
+        heatmap_data = monthly_cat[monthly_cat["category"].isin(top10_cats)].copy()
+        heatmap_data["period_str"] = heatmap_data["period_dt"].dt.strftime("%Y-%m")
 
-    pivot_growth = pivot_growth.reindex(columns=recent_months, fill_value=0)
+        recent_months = sorted(heatmap_data["period_str"].unique())[-24:]
 
-    fig9 = go.Figure(data=go.Heatmap(
-        z=pivot_growth.values,
-        x=pivot_growth.columns.tolist(),
-        y=pivot_growth.index.tolist(),
-        colorscale="RdYlGn_r",
-        zmid=0,
-        colorbar=dict(title="MoM Growth (%)"),
-        hovertemplate="Kategori: %{y}<br>Bulan: %{x}<br>Pertumbuhan: %{z:.2f}%<extra></extra>",
-    ))
+        pivot_growth = heatmap_data.pivot_table(
+            index="category",
+            columns="period_str",
+            values="mom_growth_pct",
+            fill_value=0
+        )
 
-    fig9.update_layout(
-        title="A. Heatmap Pertumbuhan Bulanan per Kategori",
-        template="plotly_dark",
-        height=520,
-        margin=dict(l=30, r=20, t=60, b=30),
-    )
-    fig9.update_xaxes(title="Bulan")
-    fig9.update_yaxes(title="")
-    st.plotly_chart(fig9, use_container_width=True)
+        pivot_growth = pivot_growth.reindex(columns=recent_months, fill_value=0)
 
-    # ------------------------------------------------------------
-    # VISUAL 2: ANOMALI PER KATEGORI
-    # ------------------------------------------------------------
-    st.markdown("### 🔥 Tingkat Anomali per Kategori")
+        fig9 = go.Figure(data=go.Heatmap(
+            z=pivot_growth.values,
+            x=pivot_growth.columns.tolist(),
+            y=pivot_growth.index.tolist(),
+            colorscale="RdYlGn_r",
+            zmid=0,
+            colorbar=dict(title="MoM Growth (%)"),
+            hovertemplate="Kategori: %{y}<br>Bulan: %{x}<br>Pertumbuhan: %{z:.2f}%<extra></extra>",
+        ))
 
-    top8_anom = anomaly_freq.head(8).copy()
-    top8_anom["warna"] = np.where(
-        top8_anom["anomaly_rate"] > 0.15, "crimson",
-        np.where(top8_anom["anomaly_rate"] > 0.08, "orange", "steelblue")
-    )
+        fig9.update_layout(
+            title="A. Heatmap Pertumbuhan Bulanan per Kategori",
+            template="plotly_dark",
+            height=520,
+            margin=dict(l=30, r=20, t=60, b=30),
+        )
+        fig9.update_xaxes(title="Bulan")
+        fig9.update_yaxes(title="")
+        st.plotly_chart(fig9, use_container_width=True)
 
-    fig10 = go.Figure(go.Bar(
-        x=top8_anom["anomaly_rate"][::-1],
-        y=top8_anom["category"][::-1],
-        orientation="h",
-        marker_color=top8_anom["warna"][::-1],
-        hovertemplate="%{y}<br>Tingkat anomali: %{x:.2%}<extra></extra>",
-    ))
+        st.markdown("### 🔥 Tingkat Anomali per Kategori")
 
-    fig10.update_layout(
-        title="B. Tingkat Anomali per Kategori",
-        template="plotly_dark",
-        height=480,
-        margin=dict(l=30, r=20, t=60, b=30),
-        showlegend=False,
-    )
-    fig10.update_xaxes(title="Proporsi Bulan Anomali")
-    fig10.update_yaxes(title="")
-    st.plotly_chart(fig10, use_container_width=True)
+        top8_anom = anomaly_freq.head(8).copy()
+        top8_anom["warna"] = np.where(
+            top8_anom["anomaly_rate"] > 0.15, "crimson",
+            np.where(top8_anom["anomaly_rate"] > 0.08, "orange", "steelblue")
+        )
 
-    # ------------------------------------------------------------
-    # VISUAL 3: TIME SERIES + ANOMALI
-    # ------------------------------------------------------------
-    st.markdown("### 📈 Tren Pengeluaran dan Penanda Anomali")
+        fig10 = go.Figure(go.Bar(
+            x=top8_anom["anomaly_rate"][::-1],
+            y=top8_anom["category"][::-1],
+            orientation="h",
+            marker_color=top8_anom["warna"][::-1],
+            hovertemplate="%{y}<br>Tingkat anomali: %{x:.2%}<extra></extra>",
+        ))
 
-    detail_cat = st.selectbox(
-        "Pilih kategori untuk melihat detail tren",
-        anomaly_freq["category"].tolist(),
-        index=0,
-        key="rq3_detail_category"
-    )
+        fig10.update_layout(
+            title="B. Tingkat Anomali per Kategori",
+            template="plotly_dark",
+            height=480,
+            margin=dict(l=30, r=20, t=60, b=30),
+            showlegend=False,
+        )
+        fig10.update_xaxes(title="Proporsi Bulan Anomali")
+        fig10.update_yaxes(title="")
+        st.plotly_chart(fig10, use_container_width=True)
 
-    cat_ts = monthly_cat[monthly_cat["category"] == detail_cat].sort_values("period_dt")
-    anomaly_pts = cat_ts[cat_ts["is_anomaly"] == 1]
+        st.markdown("### 📈 Tren Pengeluaran dan Penanda Anomali")
 
-    fig11 = go.Figure()
+        detail_cat = st.selectbox(
+            "Pilih kategori untuk melihat detail tren",
+            anomaly_freq["category"].tolist(),
+            index=0,
+            key="rq3_detail_category"
+        )
 
-    fig11.add_trace(go.Scatter(
-        x=cat_ts["period_dt"],
-        y=cat_ts["total_amount"],
-        mode="lines+markers",
-        name="Total Pengeluaran",
-        line=dict(width=3),
-        hovertemplate="%{x|%Y-%m}<br>Total: Rp %{y:,.0f}<extra></extra>",
-    ))
+        cat_ts = monthly_cat[monthly_cat["category"] == detail_cat].sort_values("period_dt")
+        anomaly_pts = cat_ts[cat_ts["is_anomaly"] == 1]
 
-    fig11.add_trace(go.Scatter(
-        x=anomaly_pts["period_dt"],
-        y=anomaly_pts["total_amount"],
-        mode="markers",
-        name="Anomali",
-        marker=dict(size=12, symbol="x", color="red"),
-        hovertemplate="%{x|%Y-%m}<br>Anomali: Rp %{y:,.0f}<extra></extra>",
-    ))
+        fig11 = go.Figure()
 
-    fig11.update_layout(
-        title=f"C. Tren Pengeluaran dan Anomali: {detail_cat}",
-        template="plotly_dark",
-        height=420,
-        hovermode="x unified",
-        margin=dict(l=30, r=20, t=60, b=30),
-    )
-    fig11.update_xaxes(dtick="M12", tickformat="%Y", title="Tahun")
-    fig11.update_yaxes(title="Total Pengeluaran (Rp)")
-    st.plotly_chart(fig11, use_container_width=True)
+        fig11.add_trace(go.Scatter(
+            x=cat_ts["period_dt"],
+            y=cat_ts["total_amount"],
+            mode="lines+markers",
+            name="Total Pengeluaran",
+            line=dict(width=3),
+            hovertemplate="%{x|%Y-%m}<br>Total: Rp %{y:,.0f}<extra></extra>",
+        ))
 
-    # ------------------------------------------------------------
-    # VISUAL 4: WEEKEND IMPULSE
-    # ------------------------------------------------------------
-    st.markdown("### 📅 Peningkatan Micro-Spending Saat Akhir Pekan")
+        fig11.add_trace(go.Scatter(
+            x=anomaly_pts["period_dt"],
+            y=anomaly_pts["total_amount"],
+            mode="markers",
+            name="Anomali",
+            marker=dict(size=12, symbol="x", color="red"),
+            hovertemplate="%{x|%Y-%m}<br>Anomali: Rp %{y:,.0f}<extra></extra>",
+        ))
 
-    fig13 = go.Figure(go.Bar(
-        x=weekend_impulse["weekend_boost"][::-1],
-        y=weekend_impulse.index[::-1],
-        orientation="h",
-        marker_color="teal",
-        hovertemplate="%{y}<br>Selisih tingkat micro-spending: %{x:.4f}<extra></extra>",
-    ))
+        fig11.update_layout(
+            title=f"C. Tren Pengeluaran dan Anomali: {detail_cat}",
+            template="plotly_dark",
+            height=420,
+            hovermode="x unified",
+            margin=dict(l=30, r=20, t=60, b=30),
+        )
+        fig11.update_xaxes(dtick="M12", tickformat="%Y", title="Tahun")
+        fig11.update_yaxes(title="Total Pengeluaran (Rp)")
+        st.plotly_chart(fig11, use_container_width=True)
 
-    fig13.update_layout(
-        title="D. Peningkatan Micro-Spending Saat Akhir Pekan",
-        template="plotly_dark",
-        height=380,
-        margin=dict(l=30, r=20, t=60, b=30),
-        showlegend=False,
-    )
-    fig13.update_xaxes(title="Selisih tingkat micro-spending (Weekend - Weekday)")
-    fig13.update_yaxes(title="")
-    st.plotly_chart(fig13, use_container_width=True)
+        st.markdown("### 📅 Peningkatan Micro-Spending Saat Akhir Pekan")
+
+        fig13 = go.Figure(go.Bar(
+            x=weekend_impulse["weekend_boost"][::-1],
+            y=weekend_impulse.index[::-1],
+            orientation="h",
+            marker_color="teal",
+            hovertemplate="%{y}<br>Selisih tingkat micro-spending: %{x:.4f}<extra></extra>",
+        ))
+
+        fig13.update_layout(
+            title="D. Peningkatan Micro-Spending Saat Akhir Pekan",
+            template="plotly_dark",
+            height=380,
+            margin=dict(l=30, r=20, t=60, b=30),
+            showlegend=False,
+        )
+        fig13.update_xaxes(title="Selisih tingkat micro-spending (Weekend - Weekday)")
+        fig13.update_yaxes(title="")
+        st.plotly_chart(fig13, use_container_width=True)
 
     # ------------------------------------------------------------
     # KESIMPULAN RQ3
@@ -1101,6 +1101,8 @@ def render_business_questions(df):
         </ul>
     </div>
     """, unsafe_allow_html=True)
+
+    st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
     st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
     st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
